@@ -1,24 +1,30 @@
 import { useRef, useState } from 'react';
-import { type TeeMarker, type Position } from '../../types';
+import { type TeeMarker, type BasketMarker, type Position, type BasketColor } from '../../types';
 
 interface MapCanvasProps {
   imageUrl: string | null;
-  placementMode: 'tee' | null;
+  placementMode: 'tee' | 'basket' | null;
   teeMarker: TeeMarker | null;
+  basketMarkers: BasketMarker[];
+  selectedBasketColor: BasketColor | null;
   onPlaceTeeMarker: (position: Position) => void;
   onUpdateTeeMarker: (updates: Partial<TeeMarker>) => void;
+  onPlaceBasketMarker: (position: Position) => void;
 }
 
 export function MapCanvas({
   imageUrl,
   placementMode,
   teeMarker,
+  basketMarkers,
+  selectedBasketColor,
   onPlaceTeeMarker,
   onUpdateTeeMarker,
+  onPlaceBasketMarker,
 }: MapCanvasProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const [selectedMarker, setSelectedMarker] = useState<'tee' | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<'tee' | string | null>(null);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (!placementMode || !imageRef.current || !containerRef.current) return;
@@ -30,14 +36,31 @@ export function MapCanvas({
 
     if (placementMode === 'tee') {
       onPlaceTeeMarker({ x, y });
+    } else if (placementMode === 'basket') {
+      onPlaceBasketMarker({ x, y });
     }
   };
 
-  const handleMarkerClick = (e: React.MouseEvent, markerType: 'tee'): void => {
+  const handleMarkerClick = (e: React.MouseEvent, markerType: 'tee' | string): void => {
     e.stopPropagation();
     if (!placementMode) {
       setSelectedMarker(markerType);
     }
+  };
+
+  const getBasketColorClass = (color: BasketColor): string => {
+    switch (color) {
+      case 'red':
+        return 'bg-red-600 border-red-700';
+      case 'blue':
+        return 'bg-blue-600 border-blue-700';
+      case 'white':
+        return 'bg-white border-gray-300';
+    }
+  };
+
+  const getBasketTextColorClass = (color: BasketColor): string => {
+    return color === 'white' ? 'text-gray-900' : 'text-white';
   };
 
   const handleBackgroundClick = (): void => {
@@ -107,6 +130,37 @@ export function MapCanvas({
               </div>
             </div>
           )}
+
+          {/* Basket Markers - Circles */}
+          {basketMarkers.map((basket) => (
+            <div
+              key={basket.id}
+              className="absolute pointer-events-auto cursor-pointer"
+              style={{
+                left: `${basket.position.x}%`,
+                top: `${basket.position.y}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+              onClick={(e) => handleMarkerClick(e, basket.id)}
+            >
+              <div className="relative">
+                {/* Circle representing basket */}
+                <div
+                  className={`w-12 h-12 rounded-full border-4 shadow-lg transition-all flex items-center justify-center font-bold text-sm ${
+                    getBasketColorClass(basket.color)
+                  } ${
+                    selectedMarker === basket.id ? 'ring-2 ring-yellow-400 border-yellow-500' : ''
+                  } ${getBasketTextColorClass(basket.color)}`}
+                >
+                  {basket.color.charAt(0).toUpperCase()}
+                </div>
+                {/* Label */}
+                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+                  {basket.color.charAt(0).toUpperCase() + basket.color.slice(1)} Basket
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -164,7 +218,7 @@ export function MapCanvas({
       )}
 
       {/* Canvas info overlay */}
-      {!teeMarker && !placementMode && (
+      {!teeMarker && basketMarkers.length === 0 && !placementMode && (
         <div className="absolute top-4 left-4 bg-gray-800/90 backdrop-blur-sm px-3 py-2 rounded-lg text-sm text-gray-300">
           Click "Add Marker" buttons to start annotating
         </div>
@@ -173,6 +227,12 @@ export function MapCanvas({
       {placementMode === 'tee' && (
         <div className="absolute top-4 left-4 bg-blue-600/90 backdrop-blur-sm px-3 py-2 rounded-lg text-sm text-white">
           Click on the map to place the tee marker
+        </div>
+      )}
+
+      {placementMode === 'basket' && selectedBasketColor && (
+        <div className="absolute top-4 left-4 bg-blue-600/90 backdrop-blur-sm px-3 py-2 rounded-lg text-sm text-white">
+          Click on the map to place the {selectedBasketColor} basket
         </div>
       )}
     </div>

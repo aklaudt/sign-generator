@@ -3,12 +3,14 @@ import { ImageUploader } from './components/ImageUploader';
 import { MapCanvas } from './components/MapCanvas';
 import { CourseInfoForm } from './components/CourseInfoForm';
 import { useTeeSignStore } from './store/teeSignStore';
+import { type BasketColor } from './types';
 
-type PlacementMode = 'tee' | null;
+type PlacementMode = 'tee' | 'basket' | null;
 
 function App(): JSX.Element {
-  const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, clearMarkers } = useTeeSignStore();
+  const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, basketMarkers, addBasketMarker, clearMarkers } = useTeeSignStore();
   const [placementMode, setPlacementMode] = useState<PlacementMode>(null);
+  const [selectedBasketColor, setSelectedBasketColor] = useState<BasketColor | null>(null);
 
   const handleImageUpload = (imageUrl: string): void => {
     setUploadedImage(imageUrl);
@@ -20,6 +22,11 @@ function App(): JSX.Element {
 
   const handleAddTeeMarker = (): void => {
     setPlacementMode('tee');
+  };
+
+  const handleAddBasketMarker = (color: BasketColor): void => {
+    setSelectedBasketColor(color);
+    setPlacementMode('basket');
   };
 
   return (
@@ -58,7 +65,7 @@ function App(): JSX.Element {
                   <div className="flex gap-2">
                     <button
                       onClick={clearMarkers}
-                      disabled={!teeMarker}
+                      disabled={!teeMarker && basketMarkers.length === 0}
                       className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Clear Markers
@@ -75,6 +82,8 @@ function App(): JSX.Element {
                   imageUrl={uploadedImage}
                   placementMode={placementMode}
                   teeMarker={teeMarker}
+                  basketMarkers={basketMarkers}
+                  selectedBasketColor={selectedBasketColor}
                   onPlaceTeeMarker={(position) => {
                     setTeeMarker({
                       id: 'tee-1',
@@ -88,6 +97,19 @@ function App(): JSX.Element {
                   onUpdateTeeMarker={(updates) => {
                     if (teeMarker) {
                       setTeeMarker({ ...teeMarker, ...updates });
+                    }
+                  }}
+                  onPlaceBasketMarker={(position) => {
+                    if (selectedBasketColor) {
+                      addBasketMarker({
+                        id: `basket-${Date.now()}`,
+                        color: selectedBasketColor,
+                        position,
+                        par: 3,
+                        distance: 200,
+                      });
+                      setPlacementMode(null);
+                      setSelectedBasketColor(null);
                     }
                   }}
                 />
@@ -123,17 +145,29 @@ function App(): JSX.Element {
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-300 mb-2">
-                        Baskets
+                        Baskets ({basketMarkers.length}/3)
                       </h4>
                       <div className="space-y-2">
-                        <button className="w-full px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors text-sm">
-                          Add Red Basket
+                        <button
+                          onClick={() => handleAddBasketMarker('red')}
+                          disabled={basketMarkers.length >= 3 || placementMode === 'basket'}
+                          className="w-full px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {placementMode === 'basket' && selectedBasketColor === 'red' ? 'Click on Map...' : 'Add Red Basket'}
                         </button>
-                        <button className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors text-sm">
-                          Add Blue Basket
+                        <button
+                          onClick={() => handleAddBasketMarker('blue')}
+                          disabled={basketMarkers.length >= 3 || placementMode === 'basket'}
+                          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {placementMode === 'basket' && selectedBasketColor === 'blue' ? 'Click on Map...' : 'Add Blue Basket'}
                         </button>
-                        <button className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg transition-colors text-sm">
-                          Add White Basket
+                        <button
+                          onClick={() => handleAddBasketMarker('white')}
+                          disabled={basketMarkers.length >= 3 || placementMode === 'basket'}
+                          className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {placementMode === 'basket' && selectedBasketColor === 'white' ? 'Click on Map...' : 'Add White Basket'}
                         </button>
                       </div>
                     </div>
