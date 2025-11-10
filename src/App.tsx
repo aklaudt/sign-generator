@@ -34,7 +34,7 @@ function App(): JSX.Element {
           </p>
         </header>
 
-        <main className="max-w-7xl mx-auto">
+        <main className={!uploadedImage ? "max-w-4xl mx-auto" : ""}>
           {!uploadedImage ? (
             <div className="bg-gray-800 rounded-lg shadow-xl p-8">
               <div className="text-center mb-6">
@@ -48,47 +48,53 @@ function App(): JSX.Element {
               <ImageUploader onImageUpload={handleImageUpload} />
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
               {/* Main Canvas Area */}
-              <div className="lg:col-span-2">
-                <div className="bg-gray-800 rounded-lg shadow-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-100">
-                      Hole {holeNumber}
-                    </h2>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={clearMarkers}
-                        disabled={!teeMarker}
-                        className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Clear Markers
-                      </button>
-                      <button
-                        onClick={() => setUploadedImage(null)}
-                        className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-100 rounded transition-colors"
-                      >
-                        Change Image
-                      </button>
-                    </div>
+              <div className="bg-gray-800 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-100">
+                    Hole {holeNumber}
+                  </h2>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={clearMarkers}
+                      disabled={!teeMarker}
+                      className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Clear Markers
+                    </button>
+                    <button
+                      onClick={() => setUploadedImage(null)}
+                      className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-100 rounded transition-colors"
+                    >
+                      Change Image
+                    </button>
                   </div>
-                  <MapCanvas
-                    imageUrl={uploadedImage}
-                    placementMode={placementMode}
-                    teeMarker={teeMarker}
-                    onPlaceTeeMarker={(position) => {
-                      setTeeMarker({
-                        id: 'tee-1',
-                        position,
-                      });
-                      setPlacementMode(null);
-                    }}
-                  />
                 </div>
+                <MapCanvas
+                  imageUrl={uploadedImage}
+                  placementMode={placementMode}
+                  teeMarker={teeMarker}
+                  onPlaceTeeMarker={(position) => {
+                    setTeeMarker({
+                      id: 'tee-1',
+                      position,
+                      rotation: 0,
+                      width: 60,
+                      height: 40,
+                    });
+                    setPlacementMode(null);
+                  }}
+                  onUpdateTeeMarker={(updates) => {
+                    if (teeMarker) {
+                      setTeeMarker({ ...teeMarker, ...updates });
+                    }
+                  }}
+                />
               </div>
 
-              {/* Sidebar Controls */}
-              <div className="lg:col-span-1 space-y-6">
+              {/* Controls Below Image */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Course Info Section */}
                 <div className="bg-gray-800 rounded-lg shadow-xl p-6">
                   <CourseInfoForm

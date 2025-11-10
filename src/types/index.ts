@@ -18,6 +18,9 @@ export interface BasketMarker {
 export interface TeeMarker {
   id: string;
   position: Position;
+  rotation: number; // in degrees
+  width: number; // in pixels
+  height: number; // in pixels
 }
 
 export interface TeeSignData {

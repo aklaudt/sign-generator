@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { type TeeMarker, type Position } from '../../types';
 
 interface MapCanvasProps {
@@ -6,6 +6,7 @@ interface MapCanvasProps {
   placementMode: 'tee' | null;
   teeMarker: TeeMarker | null;
   onPlaceTeeMarker: (position: Position) => void;
+  onUpdateTeeMarker: (updates: Partial<TeeMarker>) => void;
 }
 
 export function MapCanvas({
@@ -13,9 +14,11 @@ export function MapCanvas({
   placementMode,
   teeMarker,
   onPlaceTeeMarker,
+  onUpdateTeeMarker,
 }: MapCanvasProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [selectedMarker, setSelectedMarker] = useState<'tee' | null>(null);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (!placementMode || !imageRef.current || !containerRef.current) return;
@@ -27,6 +30,19 @@ export function MapCanvas({
 
     if (placementMode === 'tee') {
       onPlaceTeeMarker({ x, y });
+    }
+  };
+
+  const handleMarkerClick = (e: React.MouseEvent, markerType: 'tee'): void => {
+    e.stopPropagation();
+    if (!placementMode) {
+      setSelectedMarker(markerType);
+    }
+  };
+
+  const handleBackgroundClick = (): void => {
+    if (!placementMode) {
+      setSelectedMarker(null);
     }
   };
 
@@ -45,7 +61,10 @@ export function MapCanvas({
     >
       <div
         className="relative"
-        onClick={handleCanvasClick}
+        onClick={(e) => {
+          handleCanvasClick(e);
+          handleBackgroundClick();
+        }}
         style={{ cursor: placementMode ? 'crosshair' : 'default' }}
       >
         <img
@@ -57,28 +76,32 @@ export function MapCanvas({
         />
 
         {/* Marker overlay container */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0">
           {/* Tee Marker - Rectangle */}
           {teeMarker && (
             <div
-              className="absolute"
+              className="absolute pointer-events-auto cursor-pointer"
               style={{
                 left: `${teeMarker.position.x}%`,
                 top: `${teeMarker.position.y}%`,
                 transform: 'translate(-50%, -50%)',
               }}
+              onClick={(e) => handleMarkerClick(e, 'tee')}
             >
               <div className="relative">
                 {/* Rectangle representing tee pad */}
                 <div
-                  className="bg-green-500 border-4 border-white shadow-lg"
+                  className={`bg-gray-500 border-4 shadow-lg transition-all rounded-lg ${
+                    selectedMarker === 'tee' ? 'border-blue-500 ring-2 ring-blue-400' : 'border-white'
+                  }`}
                   style={{
-                    width: '60px',
-                    height: '40px',
+                    width: `${teeMarker.width}px`,
+                    height: `${teeMarker.height}px`,
+                    transform: `rotate(${teeMarker.rotation}deg)`,
                   }}
                 />
                 {/* Label */}
-                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
                   Tee
                 </div>
               </div>
@@ -86,6 +109,59 @@ export function MapCanvas({
           )}
         </div>
       </div>
+
+      {/* Marker Controls */}
+      {selectedMarker === 'tee' && teeMarker && (
+        <div className="absolute bottom-4 left-4 right-4 bg-gray-800/95 backdrop-blur-sm p-4 rounded-lg shadow-xl">
+          <div className="flex items-center gap-4">
+            <div className="text-sm font-medium text-gray-100">Tee Marker Controls</div>
+            <div className="flex gap-3 flex-1">
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-300">Rotation:</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="360"
+                  value={teeMarker.rotation}
+                  onChange={(e) => onUpdateTeeMarker({ rotation: parseInt(e.target.value) || 0 })}
+                  className="w-16 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <span className="text-xs text-gray-400">°</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-300">Width:</label>
+                <input
+                  type="number"
+                  min="20"
+                  max="200"
+                  value={teeMarker.width}
+                  onChange={(e) => onUpdateTeeMarker({ width: parseInt(e.target.value) || 20 })}
+                  className="w-16 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <span className="text-xs text-gray-400">px</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-300">Height:</label>
+                <input
+                  type="number"
+                  min="20"
+                  max="200"
+                  value={teeMarker.height}
+                  onChange={(e) => onUpdateTeeMarker({ height: parseInt(e.target.value) || 20 })}
+                  className="w-16 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <span className="text-xs text-gray-400">px</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedMarker(null)}
+              className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-100 rounded transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Canvas info overlay */}
       {!teeMarker && !placementMode && (

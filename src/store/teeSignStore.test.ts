@@ -21,7 +21,13 @@ describe('teeSignStore', () => {
 
   it('clears all markers', () => {
     // Add some markers
-    useTeeSignStore.getState().setTeeMarker({ id: 'tee-1', position: { x: 50, y: 50 } });
+    useTeeSignStore.getState().setTeeMarker({
+      id: 'tee-1',
+      position: { x: 50, y: 50 },
+      rotation: 0,
+      width: 60,
+      height: 40,
+    });
     useTeeSignStore.getState().addBasketMarker({
       id: 'basket-1',
       color: 'red',
