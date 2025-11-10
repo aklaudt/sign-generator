@@ -152,7 +152,7 @@ export function MapCanvas({
                     selectedMarker === basket.id ? 'ring-2 ring-yellow-400 border-yellow-500' : ''
                   } ${getBasketTextColorClass(basket.color)}`}
                 >
-                  {basket.color.charAt(0).toUpperCase()}
+                  {basket.label}
                 </div>
                 {/* Label */}
                 <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">

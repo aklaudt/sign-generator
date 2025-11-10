@@ -11,7 +11,7 @@ import { type BasketColor } from './types';
 type PlacementMode = 'tee' | 'basket' | null;
 
 function App(): JSX.Element {
-  const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, basketMarkers, addBasketMarker, clearMarkers } = useTeeSignStore();
+  const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, basketMarkers, addBasketMarker, updateBasketMarker, clearMarkers } = useTeeSignStore();
   const [placementMode, setPlacementMode] = useState<PlacementMode>(null);
   const [selectedBasketColor, setSelectedBasketColor] = useState<BasketColor | null>(null);
   const teeSignRef = useRef<HTMLDivElement>(null);
@@ -117,12 +117,15 @@ function App(): JSX.Element {
                   }}
                   onPlaceBasketMarker={(position) => {
                     if (selectedBasketColor) {
+                      // Set default label based on color
+                      const defaultLabel = selectedBasketColor.charAt(0).toUpperCase();
                       addBasketMarker({
                         id: `basket-${Date.now()}`,
                         color: selectedBasketColor,
                         position,
                         par: 3,
                         distance: 200,
+                        label: defaultLabel,
                       });
                       setPlacementMode(null);
                       setSelectedBasketColor(null);
@@ -138,6 +141,8 @@ function App(): JSX.Element {
                   <CourseInfoForm
                     holeNumber={holeNumber}
                     onHoleNumberChange={handleHoleNumberChange}
+                    basketMarkers={basketMarkers}
+                    onUpdateBasketMarker={updateBasketMarker}
                   />
                 </div>
 

@@ -79,8 +79,8 @@ describe('MapCanvas', () => {
         placementMode={null}
         teeMarker={null}
         basketMarkers={[
-          { id: 'basket-1', color: 'red', position: { x: 30, y: 30 }, par: 3, distance: 200 },
-          { id: 'basket-2', color: 'blue', position: { x: 70, y: 70 }, par: 4, distance: 350 }
+          { id: 'basket-1', color: 'red', position: { x: 30, y: 30 }, par: 3, distance: 200, label: 'R' },
+          { id: 'basket-2', color: 'blue', position: { x: 70, y: 70 }, par: 4, distance: 350, label: 'B' }
         ]}
         selectedBasketColor={null}
         onPlaceTeeMarker={mockOnPlaceTeeMarker}

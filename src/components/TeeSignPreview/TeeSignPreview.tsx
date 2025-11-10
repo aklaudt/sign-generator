@@ -116,7 +116,7 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
                       getBasketColorClass(basket.color)
                     } ${getBasketTextColorClass(basket.color)}`}
                   >
-                    {basket.color.charAt(0).toUpperCase()}
+                    {basket.label}
                   </div>
                 </div>
               ))}
@@ -143,7 +143,7 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
                     getBasketColorClass(basket.color)
                   } ${getBasketTextColorClass(basket.color)}`}
                 >
-                  {basket.color.charAt(0).toUpperCase()}
+                  {basket.label}
                 </div>
                 <span className="text-gray-100">{getBasketLabel(basket.color)}</span>
               </div>

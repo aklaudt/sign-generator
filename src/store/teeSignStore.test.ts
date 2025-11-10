@@ -34,6 +34,7 @@ describe('teeSignStore', () => {
       position: { x: 60, y: 60 },
       par: 3,
       distance: 250,
+      label: 'R',
     });
 
     // Verify markers are added

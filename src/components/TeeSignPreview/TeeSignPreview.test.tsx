@@ -19,6 +19,7 @@ describe('TeeSignPreview', () => {
       position: { x: 30, y: 70 },
       par: 3,
       distance: 250,
+      label: 'R',
     },
     {
       id: 'basket-2',
@@ -26,6 +27,7 @@ describe('TeeSignPreview', () => {
       position: { x: 70, y: 80 },
       par: 4,
       distance: 350,
+      label: 'B',
     },
   ];
 

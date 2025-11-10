@@ -13,6 +13,7 @@ export interface BasketMarker {
   position: Position;
   par: 3 | 4 | 5;
   distance: number;
+  label: string; // Single character label displayed on marker
 }
 
 export interface TeeMarker {
