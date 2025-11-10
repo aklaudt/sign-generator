@@ -7,7 +7,7 @@ import { useTeeSignStore } from './store/teeSignStore';
 type PlacementMode = 'tee' | null;
 
 function App(): JSX.Element {
-  const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker } = useTeeSignStore();
+  const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, clearMarkers } = useTeeSignStore();
   const [placementMode, setPlacementMode] = useState<PlacementMode>(null);
 
   const handleImageUpload = (imageUrl: string): void => {
@@ -56,12 +56,21 @@ function App(): JSX.Element {
                     <h2 className="text-xl font-semibold text-gray-100">
                       Hole {holeNumber}
                     </h2>
-                    <button
-                      onClick={() => setUploadedImage(null)}
-                      className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-100 rounded transition-colors"
-                    >
-                      Change Image
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={clearMarkers}
+                        disabled={!teeMarker}
+                        className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Clear Markers
+                      </button>
+                      <button
+                        onClick={() => setUploadedImage(null)}
+                        className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-100 rounded transition-colors"
+                      >
+                        Change Image
+                      </button>
+                    </div>
                   </div>
                   <MapCanvas
                     imageUrl={uploadedImage}

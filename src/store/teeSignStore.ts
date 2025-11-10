@@ -8,6 +8,7 @@ interface TeeSignStore extends TeeSignData {
   addBasketMarker: (marker: BasketMarker) => void;
   updateBasketMarker: (id: string, updates: Partial<BasketMarker>) => void;
   removeBasketMarker: (id: string) => void;
+  clearMarkers: () => void;
   reset: () => void;
 }
 
@@ -51,6 +52,10 @@ export const useTeeSignStore = create<TeeSignStore>((set) => ({
     set((state) => ({
       basketMarkers: state.basketMarkers.filter((marker) => marker.id !== id),
     }));
+  },
+
+  clearMarkers: (): void => {
+    set({ teeMarker: null, basketMarkers: [] });
   },
 
   reset: (): void => {
