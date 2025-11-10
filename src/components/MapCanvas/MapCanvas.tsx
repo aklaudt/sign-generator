@@ -1,24 +1,33 @@
 import { useRef, useState } from 'react';
-import { type TeeMarker, type Position } from '../../types';
+import { type TeeMarker, type BasketMarker, type Position, type BasketColor } from '../../types';
+import { X } from 'lucide-react';
 
 interface MapCanvasProps {
   imageUrl: string | null;
-  placementMode: 'tee' | null;
+  placementMode: 'tee' | BasketColor | null;
   teeMarker: TeeMarker | null;
+  basketMarkers: BasketMarker[];
   onPlaceTeeMarker: (position: Position) => void;
+  onPlaceBasketMarker: (color: BasketColor, position: Position) => void;
   onUpdateTeeMarker: (updates: Partial<TeeMarker>) => void;
+  onUpdateBasketMarker: (id: string, updates: Partial<BasketMarker>) => void;
+  onRemoveBasketMarker: (id: string) => void;
 }
 
 export function MapCanvas({
   imageUrl,
   placementMode,
   teeMarker,
+  basketMarkers,
   onPlaceTeeMarker,
+  onPlaceBasketMarker,
   onUpdateTeeMarker,
+  onUpdateBasketMarker,
+  onRemoveBasketMarker,
 }: MapCanvasProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const [selectedMarker, setSelectedMarker] = useState<'tee' | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<{ type: 'tee' } | { type: 'basket'; id: string } | null>(null);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (!placementMode || !imageRef.current || !containerRef.current) return;
@@ -30,13 +39,15 @@ export function MapCanvas({
 
     if (placementMode === 'tee') {
       onPlaceTeeMarker({ x, y });
+    } else if (placementMode === 'red' || placementMode === 'blue' || placementMode === 'white') {
+      onPlaceBasketMarker(placementMode, { x, y });
     }
   };
 
-  const handleMarkerClick = (e: React.MouseEvent, markerType: 'tee'): void => {
+  const handleMarkerClick = (e: React.MouseEvent, marker: { type: 'tee' } | { type: 'basket'; id: string }): void => {
     e.stopPropagation();
     if (!placementMode) {
-      setSelectedMarker(markerType);
+      setSelectedMarker(marker);
     }
   };
 
@@ -86,13 +97,13 @@ export function MapCanvas({
                 top: `${teeMarker.position.y}%`,
                 transform: 'translate(-50%, -50%)',
               }}
-              onClick={(e) => handleMarkerClick(e, 'tee')}
+              onClick={(e) => handleMarkerClick(e, { type: 'tee' })}
             >
               <div className="relative">
                 {/* Rectangle representing tee pad */}
                 <div
                   className={`bg-gray-500 border-4 shadow-lg transition-all rounded-lg ${
-                    selectedMarker === 'tee' ? 'border-blue-500 ring-2 ring-blue-400' : 'border-white'
+                    selectedMarker?.type === 'tee' ? 'border-blue-500 ring-2 ring-blue-400' : 'border-white'
                   }`}
                   style={{
                     width: `${teeMarker.width}px`,
@@ -107,6 +118,46 @@ export function MapCanvas({
               </div>
             </div>
           )}
+
+          {/* Basket Markers - Circles */}
+          {basketMarkers.map((basket) => {
+            const colorClasses = {
+              red: 'bg-red-500',
+              blue: 'bg-blue-500',
+              white: 'bg-white',
+            };
+            const isSelected = selectedMarker?.type === 'basket' && selectedMarker.id === basket.id;
+
+            return (
+              <div
+                key={basket.id}
+                className="absolute pointer-events-auto cursor-pointer"
+                style={{
+                  left: `${basket.position.x}%`,
+                  top: `${basket.position.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+                onClick={(e) => handleMarkerClick(e, { type: 'basket', id: basket.id })}
+              >
+                <div className="relative">
+                  {/* Circle representing basket */}
+                  <div
+                    className={`${colorClasses[basket.color]} border-4 shadow-lg transition-all rounded-full ${
+                      isSelected ? 'border-blue-500 ring-2 ring-blue-400' : 'border-white'
+                    }`}
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                    }}
+                  />
+                  {/* Label */}
+                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+                    {basket.color.charAt(0).toUpperCase() + basket.color.slice(1)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
