@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ImageUploader } from './components/ImageUploader';
 import { MapCanvas } from './components/MapCanvas';
 import { CourseInfoForm } from './components/CourseInfoForm';
+import { TeeSignPreview } from './components/TeeSignPreview';
+import { ExportButton } from './components/ExportButton';
 import { useTeeSignStore } from './store/teeSignStore';
+import { exportTeeSign, generateFileName } from './utils/exportTeeSign';
 import { type BasketColor } from './types';
 
 type PlacementMode = 'tee' | 'basket' | null;
@@ -11,6 +14,7 @@ function App(): JSX.Element {
   const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, basketMarkers, addBasketMarker, clearMarkers } = useTeeSignStore();
   const [placementMode, setPlacementMode] = useState<PlacementMode>(null);
   const [selectedBasketColor, setSelectedBasketColor] = useState<BasketColor | null>(null);
+  const teeSignRef = useRef<HTMLDivElement>(null);
 
   const handleImageUpload = (imageUrl: string): void => {
     setUploadedImage(imageUrl);
@@ -27,6 +31,18 @@ function App(): JSX.Element {
   const handleAddBasketMarker = (color: BasketColor): void => {
     setSelectedBasketColor(color);
     setPlacementMode('basket');
+  };
+
+  const handleExport = async (): Promise<void> => {
+    if (!teeSignRef.current) {
+      throw new Error('Tee sign preview not found');
+    }
+
+    await exportTeeSign(teeSignRef.current, {
+      fileName: generateFileName(holeNumber),
+      scale: 2,
+      backgroundColor: '#1f2937',
+    });
   };
 
   return (
@@ -186,6 +202,33 @@ function App(): JSX.Element {
                   </ul>
                 </div>
               </div>
+
+              {/* Preview and Export Section */}
+              {(teeMarker || basketMarkers.length > 0) && (
+                <div className="bg-gray-800 rounded-lg shadow-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold text-gray-100">
+                      Tee Sign Preview
+                    </h2>
+                    <ExportButton
+                      onExport={handleExport}
+                      disabled={!uploadedImage || (!teeMarker && basketMarkers.length === 0)}
+                    />
+                  </div>
+                  <div className="flex justify-center">
+                    <TeeSignPreview
+                      ref={teeSignRef}
+                      holeNumber={holeNumber}
+                      imageUrl={uploadedImage}
+                      teeMarker={teeMarker}
+                      basketMarkers={basketMarkers}
+                    />
+                  </div>
+                  <div className="mt-4 text-center text-sm text-gray-400">
+                    This preview shows how your tee sign will look when exported
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </main>
