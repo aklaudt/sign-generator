@@ -51,21 +51,42 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
         style={{ width: '800px', maxWidth: '100%' }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">Hole {holeNumber}</h1>
-          {basketMarkers.length > 0 && (
-            <div className="flex justify-center gap-4 mt-4">
-              {basketMarkers.map((basket) => (
-                <div key={basket.id} className="text-white">
-                  <div className="text-xs uppercase tracking-wide opacity-90">
-                    {getBasketLabel(basket.color)}
-                  </div>
-                  <div className="text-2xl font-bold">Par {basket.par}</div>
-                  <div className="text-sm opacity-90">{basket.distance} ft</div>
-                </div>
-              ))}
+        <div className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <span className="text-2xl font-bold text-white">{holeNumber}</span>
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">Hole</div>
+                <div className="text-lg font-semibold text-white">{holeNumber}</div>
+              </div>
             </div>
-          )}
+            {basketMarkers.length > 0 && (
+              <div className="flex items-center gap-6">
+                {basketMarkers.map((basket, index) => (
+                  <div key={basket.id} className="flex items-center gap-2">
+                    {index > 0 && <div className="w-px h-10 bg-gray-600" />}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center font-bold text-xs shadow ${
+                          getBasketColorClass(basket.color)
+                        } ${getBasketTextColorClass(basket.color)}`}
+                      >
+                        {basket.label}
+                      </div>
+                      <div className="text-left">
+                        <div className="text-xs text-gray-400 leading-tight">{getBasketLabel(basket.color)}</div>
+                        <div className="text-white font-semibold text-sm leading-tight">
+                          Par {basket.par} · {basket.distance}ft
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Map Section */}

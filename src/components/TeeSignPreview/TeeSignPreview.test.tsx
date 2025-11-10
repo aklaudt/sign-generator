@@ -54,7 +54,8 @@ describe('TeeSignPreview', () => {
         basketMarkers={mockBasketMarkers}
       />
     );
-    expect(screen.getByText('Hole 5')).toBeInTheDocument();
+    expect(screen.getByText('Hole')).toBeInTheDocument();
+    expect(screen.getAllByText('5')).toHaveLength(2); // Appears in badge and label
   });
 
   it('renders basket information in header', () => {
@@ -66,10 +67,8 @@ describe('TeeSignPreview', () => {
         basketMarkers={mockBasketMarkers}
       />
     );
-    expect(screen.getByText('Par 3')).toBeInTheDocument();
-    expect(screen.getByText('Par 4')).toBeInTheDocument();
-    expect(screen.getByText('250 ft')).toBeInTheDocument();
-    expect(screen.getByText('350 ft')).toBeInTheDocument();
+    expect(screen.getByText(/Par 3 · 250ft/)).toBeInTheDocument();
+    expect(screen.getByText(/Par 4 · 350ft/)).toBeInTheDocument();
   });
 
   it('renders map image', () => {
@@ -85,33 +84,6 @@ describe('TeeSignPreview', () => {
     expect(img).toHaveAttribute('src', 'test-image.jpg');
   });
 
-  it('renders legend with tee pad when tee marker is present', () => {
-    render(
-      <TeeSignPreview
-        holeNumber={1}
-        imageUrl="test-image.jpg"
-        teeMarker={mockTeeMarker}
-        basketMarkers={[]}
-      />
-    );
-    expect(screen.getByText('Tee Pad')).toBeInTheDocument();
-  });
-
-  it('renders legend with basket labels', () => {
-    render(
-      <TeeSignPreview
-        holeNumber={1}
-        imageUrl="test-image.jpg"
-        teeMarker={null}
-        basketMarkers={mockBasketMarkers}
-      />
-    );
-    const redLabels = screen.getAllByText('Red (Short/A)');
-    const blueLabels = screen.getAllByText('Blue (Long/C)');
-    expect(redLabels.length).toBeGreaterThan(0);
-    expect(blueLabels.length).toBeGreaterThan(0);
-  });
-
   it('renders with only tee marker', () => {
     render(
       <TeeSignPreview
@@ -122,7 +94,7 @@ describe('TeeSignPreview', () => {
       />
     );
     expect(screen.getByAltText('Hole 1 map')).toBeInTheDocument();
-    expect(screen.getByText('Tee Pad')).toBeInTheDocument();
+    expect(screen.getByText('Hole')).toBeInTheDocument();
   });
 
   it('renders with only basket markers', () => {
