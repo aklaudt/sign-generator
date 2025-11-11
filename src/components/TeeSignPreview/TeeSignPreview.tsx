@@ -125,30 +125,6 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
             </div>
           </div>
         </div>
-
-        {/* Legend */}
-        <div className="bg-gray-700 p-4">
-          <div className="flex items-center justify-center gap-6 text-sm">
-            {/* Tee Legend */}
-            {teeMarker && (
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-5 bg-gray-500 border-2 border-white rounded" />
-                <span className="text-gray-100">Tee Pad</span>
-              </div>
-            )}
-
-            {/* Basket Legends */}
-            {basketMarkers.map((basket) => (
-              <div key={basket.id} className="flex items-center gap-2">
-                <BasketMarkerCircle
-                  color={basket.color}
-                  label={basket.label}
-                />
-                <span className="text-gray-100">{getBasketLabel(basket.color)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     );
   }
