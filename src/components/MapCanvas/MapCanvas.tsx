@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { type TeeMarker, type BasketMarker, type Position, type BasketColor } from '../../types';
+import { BasketMarkerCircle } from '../BasketMarkerCircle';
 
 interface MapCanvasProps {
   imageUrl: string | null;
@@ -46,21 +47,6 @@ export function MapCanvas({
     if (!placementMode) {
       setSelectedMarker(markerType);
     }
-  };
-
-  const getBasketColorClass = (color: BasketColor): string => {
-    switch (color) {
-      case 'red':
-        return 'bg-red-600 border-red-700';
-      case 'blue':
-        return 'bg-blue-600 border-blue-700';
-      case 'white':
-        return 'bg-white border-gray-300';
-    }
-  };
-
-  const getBasketTextColorClass = (color: BasketColor): string => {
-    return color === 'white' ? 'text-gray-900' : 'text-white';
   };
 
   const handleBackgroundClick = (): void => {
@@ -145,15 +131,11 @@ export function MapCanvas({
             >
               <div className="relative">
                 {/* Circle representing basket */}
-                <div
-                  className={`w-12 h-12 rounded-full border-4 shadow-lg transition-all flex items-center justify-center font-bold text-sm ${
-                    getBasketColorClass(basket.color)
-                  } ${
-                    selectedMarker === basket.id ? 'ring-2 ring-yellow-400 border-yellow-500' : ''
-                  } ${getBasketTextColorClass(basket.color)}`}
-                >
-                  {basket.label}
-                </div>
+                <BasketMarkerCircle
+                  color={basket.color}
+                  label={basket.label}
+                  variant={selectedMarker === basket.id ? 'selected' : 'default'}
+                />
                 {/* Label */}
                 <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
                   {basket.color.charAt(0).toUpperCase() + basket.color.slice(1)} Basket

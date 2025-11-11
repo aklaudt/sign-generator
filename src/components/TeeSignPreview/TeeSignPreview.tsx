@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { type TeeMarker, type BasketMarker, type BasketColor } from '../../types';
+import { BasketMarkerCircle } from '../BasketMarkerCircle';
 
 interface TeeSignPreviewProps {
   holeNumber: number;
@@ -17,21 +18,6 @@ const getBasketLabel = (color: BasketColor): string => {
     case 'blue':
       return 'Blue (Long/C)';
   }
-};
-
-const getBasketColorClass = (color: BasketColor): string => {
-  switch (color) {
-    case 'red':
-      return 'bg-red-600 border-red-700';
-    case 'blue':
-      return 'bg-blue-600 border-blue-700';
-    case 'white':
-      return 'bg-white border-gray-300';
-  }
-};
-
-const getBasketTextColorClass = (color: BasketColor): string => {
-  return color === 'white' ? 'text-gray-900' : 'text-white';
 };
 
 export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
@@ -68,13 +54,11 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
                   <div key={basket.id} className="flex items-center gap-2">
                     {index > 0 && <div className="w-px h-10 bg-gray-600" />}
                     <div className="flex items-center gap-2">
-                      <div
-                        className={`w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center font-bold text-xs shadow ${
-                          getBasketColorClass(basket.color)
-                        } ${getBasketTextColorClass(basket.color)}`}
-                      >
-                        {basket.label}
-                      </div>
+                      <BasketMarkerCircle
+                        color={basket.color}
+                        label={basket.label}
+                        variant="header"
+                      />
                       <div className="text-left">
                         <div className="text-xs text-gray-400 leading-tight">{getBasketLabel(basket.color)}</div>
                         <div className="text-white font-semibold text-sm leading-tight">
@@ -132,13 +116,10 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
                     transform: 'translate(-50%, -50%)',
                   }}
                 >
-                  <div
-                    className={`w-12 h-12 rounded-full border-4 shadow-lg flex items-center justify-center font-bold text-sm ${
-                      getBasketColorClass(basket.color)
-                    } ${getBasketTextColorClass(basket.color)}`}
-                  >
-                    {basket.label}
-                  </div>
+                  <BasketMarkerCircle
+                    color={basket.color}
+                    label={basket.label}
+                  />
                 </div>
               ))}
             </div>
@@ -159,13 +140,10 @@ export const TeeSignPreview = forwardRef<HTMLDivElement, TeeSignPreviewProps>(
             {/* Basket Legends */}
             {basketMarkers.map((basket) => (
               <div key={basket.id} className="flex items-center gap-2">
-                <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                    getBasketColorClass(basket.color)
-                  } ${getBasketTextColorClass(basket.color)}`}
-                >
-                  {basket.label}
-                </div>
+                <BasketMarkerCircle
+                  color={basket.color}
+                  label={basket.label}
+                />
                 <span className="text-gray-100">{getBasketLabel(basket.color)}</span>
               </div>
             ))}
