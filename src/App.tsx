@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { ImageUploader } from './components/ImageUploader';
+import { ImageCropper } from './components/ImageCropper';
 import { MapCanvas } from './components/MapCanvas';
 import { CourseInfoForm } from './components/CourseInfoForm';
 import { TeeSignPreview } from './components/TeeSignPreview';
@@ -14,10 +15,27 @@ function App(): JSX.Element {
   const { uploadedImage, setUploadedImage, holeNumber, setHoleNumber, teeMarker, setTeeMarker, basketMarkers, addBasketMarker, updateBasketMarker, clearMarkers } = useTeeSignStore();
   const [placementMode, setPlacementMode] = useState<PlacementMode>(null);
   const [selectedBasketColor, setSelectedBasketColor] = useState<BasketColor | null>(null);
+  const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
+  const [isCropping, setIsCropping] = useState(false);
   const teeSignRef = useRef<HTMLDivElement>(null);
 
   const handleImageUpload = (imageUrl: string): void => {
-    setUploadedImage(imageUrl);
+    setRawImageUrl(imageUrl);
+    setIsCropping(true);
+  };
+
+  const handleCropComplete = (croppedImageUrl: string): void => {
+    setUploadedImage(croppedImageUrl);
+    setIsCropping(false);
+    setRawImageUrl(null);
+  };
+
+  const handleCropCancel = (): void => {
+    setIsCropping(false);
+    if (rawImageUrl) {
+      URL.revokeObjectURL(rawImageUrl);
+      setRawImageUrl(null);
+    }
   };
 
   const handleHoleNumberChange = (newHoleNumber: number): void => {
@@ -57,8 +75,14 @@ function App(): JSX.Element {
           </p>
         </header>
 
-        <main className={!uploadedImage ? "max-w-4xl mx-auto" : ""}>
-          {!uploadedImage ? (
+        <main className={!uploadedImage && !isCropping ? "max-w-4xl mx-auto" : ""}>
+          {isCropping && rawImageUrl ? (
+            <ImageCropper
+              imageUrl={rawImageUrl}
+              onCropComplete={handleCropComplete}
+              onCancel={handleCropCancel}
+            />
+          ) : !uploadedImage ? (
             <div className="bg-gray-800 rounded-lg shadow-xl p-8">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-100 mb-2">
@@ -87,7 +111,13 @@ function App(): JSX.Element {
                       Clear Markers
                     </button>
                     <button
-                      onClick={() => setUploadedImage(null)}
+                      onClick={() => {
+                        if (uploadedImage) {
+                          URL.revokeObjectURL(uploadedImage);
+                        }
+                        setUploadedImage(null);
+                        clearMarkers();
+                      }}
                       className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-100 rounded transition-colors"
                     >
                       Change Image
